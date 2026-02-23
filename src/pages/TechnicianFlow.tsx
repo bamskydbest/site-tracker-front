@@ -15,9 +15,9 @@ export default function TechnicianFlow() {
   const [viewingStep, setViewingStep] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore visit from sessionStorage on mount
+  // Restore visit from localStorage on mount
   useEffect(() => {
-    const savedVisitId = sessionStorage.getItem(VISIT_KEY);
+    const savedVisitId = localStorage.getItem(VISIT_KEY);
     if (savedVisitId) {
       getVisitById(savedVisitId)
         .then((v) => {
@@ -25,7 +25,7 @@ export default function TechnicianFlow() {
           setCurrentStep(v.currentStep);
         })
         .catch(() => {
-          sessionStorage.removeItem(VISIT_KEY);
+          localStorage.removeItem(VISIT_KEY);
         })
         .finally(() => setLoading(false));
     } else {
@@ -37,7 +37,7 @@ export default function TechnicianFlow() {
     setVisit(v);
     setCurrentStep(v.currentStep);
     setViewingStep(null);
-    sessionStorage.setItem(VISIT_KEY, v._id);
+    localStorage.setItem(VISIT_KEY, v._id);
   }, []);
 
   const handleCheckInComplete = (newVisit: Visit) => {
@@ -49,7 +49,7 @@ export default function TechnicianFlow() {
   }, [updateVisit]);
 
   const handleNewVisit = () => {
-    sessionStorage.removeItem(VISIT_KEY);
+    localStorage.removeItem(VISIT_KEY);
     setVisit(null);
     setCurrentStep('checkIn');
     setViewingStep(null);

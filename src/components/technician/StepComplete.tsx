@@ -30,6 +30,11 @@ export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
           </div>
         </div>
 
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="text-xs text-gray-500">Reason for Visit</div>
+          <div className="font-medium">{visit.reason}</div>
+        </div>
+
         <div className="bg-gray-50 rounded-lg p-3 flex items-start gap-2">
           <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
           <div>

@@ -40,6 +40,7 @@ export interface Visit {
   _id: string;
   technicianName: string;
   siteName: string;
+  reason: string;
   gpsLocation: GpsLocation;
   currentStep: 'checkIn' | 'arrivalPhotos' | 'departurePhotos' | 'complete';
   steps: {
