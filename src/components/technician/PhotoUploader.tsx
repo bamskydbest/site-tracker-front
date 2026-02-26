@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Camera } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import Button from '../ui/Button.js';
 import toast from 'react-hot-toast';
 
@@ -9,13 +10,20 @@ interface PhotoUploaderProps {
   label: string;
 }
 
+const COMPRESSION_OPTIONS = {
+  maxSizeMB: 0.8,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+};
+
 export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [compressing, setCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const addFiles = (newFiles: FileList | null) => {
+  const addFiles = async (newFiles: FileList | null) => {
     if (!newFiles) return;
     const fileArray = Array.from(newFiles);
     const total = files.length + fileArray.length;
@@ -25,11 +33,20 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       return;
     }
 
-    const updatedFiles = [...files, ...fileArray];
-    setFiles(updatedFiles);
-
-    const newPreviews = fileArray.map((f) => URL.createObjectURL(f));
-    setPreviews([...previews, ...newPreviews]);
+    setCompressing(true);
+    try {
+      const compressed = await Promise.all(
+        fileArray.map((f) => imageCompression(f, COMPRESSION_OPTIONS))
+      );
+      const updatedFiles = [...files, ...compressed];
+      setFiles(updatedFiles);
+      const newPreviews = compressed.map((f) => URL.createObjectURL(f));
+      setPreviews([...previews, ...newPreviews]);
+    } catch {
+      toast.error('Failed to process photos, please try again');
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const removeFile = (index: number) => {
@@ -107,8 +124,10 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       )}
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">{files.length}/10 photos selected</span>
-        <Button onClick={handleUpload} loading={uploading} disabled={files.length < 3}>
+        <span className="text-sm text-gray-500">
+          {compressing ? 'Processing photos...' : `${files.length}/10 photos selected`}
+        </span>
+        <Button onClick={handleUpload} loading={uploading || compressing} disabled={files.length < 3 || compressing}>
           Upload Photos
         </Button>
       </div>
