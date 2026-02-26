@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Clock, User } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/ui/Card.js';
 import Badge from '../components/ui/Badge.js';
@@ -94,6 +94,11 @@ export default function AdminVisitDetail() {
               <MapPin className="w-4 h-4 text-gray-400" />
               <span className="text-sm text-gray-500">Site</span>
               <span className="ml-auto font-medium">{visit.siteName}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <FileText className="w-4 h-4 text-gray-400 mt-0.5" />
+              <span className="text-sm text-gray-500">Reason</span>
+              <span className="ml-auto text-sm text-right">{visit.reason}</span>
             </div>
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
