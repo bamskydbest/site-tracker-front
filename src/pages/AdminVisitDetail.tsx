@@ -19,7 +19,7 @@ export default function AdminVisitDetail() {
   const navigate = useNavigate();
   const [visit, setVisit] = useState<Visit | null>(null);
   const [loading, setLoading] = useState(true);
-  const { socket } = useSocketContext();
+  const { socket, connected } = useSocketContext();
 
   const fetchVisit = useCallback(async () => {
     if (!id) return;
@@ -39,7 +39,7 @@ export default function AdminVisitDetail() {
   }, [fetchVisit]);
 
   useEffect(() => {
-    if (!socket || !id) return;
+    if (!socket || !id || !connected) return;
     socket.emit('join-visit', id);
 
     const handleUpdate = () => fetchVisit();
@@ -51,7 +51,7 @@ export default function AdminVisitDetail() {
       socket.off('photos-uploaded', handleUpdate);
       socket.emit('leave-visit', id);
     };
-  }, [socket, id, fetchVisit]);
+  }, [socket, id, connected, fetchVisit]);
 
   const handleNewComment = (comment: Comment) => {
     if (visit) {

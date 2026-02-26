@@ -23,7 +23,7 @@ export default function AdminDashboard() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const debouncedSearch = useDebounce(search, 300);
-  const { socket } = useSocketContext();
+  const { socket, connected } = useSocketContext();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   }, [fetchData]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !connected) return;
     socket.emit('join-admin');
 
     const refresh = () => fetchData();
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
       socket.off('photos-uploaded', refresh);
       socket.off('visit-updated', refresh);
     };
-  }, [socket, fetchData]);
+  }, [socket, connected, fetchData]);
 
   const resetFilters = () => {
     setSearch('');

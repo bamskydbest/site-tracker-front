@@ -22,7 +22,7 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
     visit.steps[stepKey].status === 'awaiting-approval'
   );
   const [comments, setComments] = useState<Comment[]>(visit.comments || []);
-  const { socket } = useSocketContext();
+  const { socket, connected } = useSocketContext();
 
   // Sync comments when visit prop changes
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
   }, [visit, stepKey]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !connected) return;
 
     socket.emit('join-visit', visit._id);
 
@@ -82,7 +82,7 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
       socket.off('visit-updated', handleVisitUpdated);
       socket.emit('leave-visit', visit._id);
     };
-  }, [socket, visit._id, stepKey, onApproved, onVisitUpdate]);
+  }, [socket, connected, visit._id, stepKey, onApproved, onVisitUpdate]);
 
   const handleUpload = useCallback(async (files: File[]) => {
     setUploading(true);
