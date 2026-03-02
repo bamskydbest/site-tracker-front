@@ -18,12 +18,20 @@ export interface GpsLocation {
   address?: string;
 }
 
+export type InstallationType = 'radio-installation' | 'poe-installation' | 'poe-uplink';
+
 export interface Photo {
   _id: string;
   visit: string;
   url: string;
   publicId: string;
-  type: 'arrival' | 'departure';
+  type:
+    | 'arrival'
+    | 'departure'
+    | InstallationType
+    | 'radio-installation-dep'
+    | 'poe-installation-dep'
+    | 'poe-uplink-dep';
   uploadedAt: string;
 }
 
@@ -49,8 +57,10 @@ export interface Visit {
     departurePhotos: StepStatus;
     complete: StepStatus;
   };
+  installationTypes?: InstallationType[];
   arrivalPhotos: Photo[];
   departurePhotos: Photo[];
+  installationPhotos?: Photo[];
   comments: Comment[];
   checkInTime: string;
   checkOutTime?: string;

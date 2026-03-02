@@ -17,9 +17,15 @@ export const createVisit = async (data: {
   reason: string;
   gpsLocation: GpsLocation;
   idempotencyKey?: string;
+  installationTypes?: string[];
 }): Promise<Visit> => {
   const { data: visit } = await api.post('/visits', data);
   return visit;
+};
+
+export const submitStep = async (id: string): Promise<Visit> => {
+  const { data } = await api.patch(`/visits/${id}/submit-step`);
+  return data;
 };
 
 export const getVisits = async (filters: VisitFilters = {}): Promise<PaginatedResponse<Visit>> => {

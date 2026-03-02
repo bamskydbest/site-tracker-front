@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { Upload, X, Camera } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import Button from '../ui/Button.js';
@@ -7,7 +8,7 @@ import toast from 'react-hot-toast';
 interface PhotoUploaderProps {
   onUpload: (files: File[]) => Promise<void>;
   uploading: boolean;
-  label: string;
+  label: ReactNode;
 }
 
 const COMPRESSION_OPTIONS = {

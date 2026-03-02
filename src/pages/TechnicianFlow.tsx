@@ -68,9 +68,9 @@ export default function TechnicianFlow() {
       case 'checkIn':
         return <StepCheckIn onComplete={handleCheckInComplete} />;
       case 'arrivalPhotos':
-        return visit ? <StepPhotos visit={visit} type="arrival" onApproved={handlePhotosApproved} onVisitUpdate={updateVisit} /> : null;
+        return visit ? <StepPhotos key={`${visit._id}-arrival`} visit={visit} type="arrival" onApproved={handlePhotosApproved} onVisitUpdate={updateVisit} /> : null;
       case 'departurePhotos':
-        return visit ? <StepPhotos visit={visit} type="departure" onApproved={handlePhotosApproved} onVisitUpdate={updateVisit} /> : null;
+        return visit ? <StepPhotos key={`${visit._id}-departure`} visit={visit} type="departure" onApproved={handlePhotosApproved} onVisitUpdate={updateVisit} /> : null;
       case 'complete':
         return visit ? <StepComplete visit={visit} onNewVisit={handleNewVisit} /> : null;
       default:
