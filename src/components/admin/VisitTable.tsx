@@ -1,8 +1,12 @@
-import { Eye } from 'lucide-react';
+import { Eye, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Badge from '../ui/Badge.js';
 import EmptyState from '../ui/EmptyState.js';
 import type { Visit } from '../../types/index.js';
+
+type SortKey = 'technicianName' | 'siteName' | 'currentStep' | 'status' | 'checkInTime';
+type SortDir = 'asc' | 'desc';
 
 interface VisitTableProps {
   visits: Visit[];
@@ -11,6 +15,33 @@ interface VisitTableProps {
 
 export default function VisitTable({ visits, loading }: VisitTableProps) {
   const navigate = useNavigate();
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  }
+
+  const sorted = sortKey
+    ? [...visits].sort((a, b) => {
+        const av = a[sortKey] ?? '';
+        const bv = b[sortKey] ?? '';
+        const cmp = String(av).localeCompare(String(bv), undefined, { sensitivity: 'base' });
+        return sortDir === 'asc' ? cmp : -cmp;
+      })
+    : visits;
+
+  function SortIcon({ col }: { col: SortKey }) {
+    if (sortKey !== col) return <ChevronsUpDown className="w-3.5 h-3.5 text-gray-400" />;
+    return sortDir === 'asc'
+      ? <ChevronUp className="w-3.5 h-3.5 text-accent" />
+      : <ChevronDown className="w-3.5 h-3.5 text-accent" />;
+  }
 
   if (loading) {
     return (
@@ -33,16 +64,31 @@ export default function VisitTable({ visits, loading }: VisitTableProps) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Technician</th>
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Site</th>
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Step</th>
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Status</th>
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Time</th>
+              {(
+                [
+                  { label: 'Technician', key: 'technicianName' },
+                  { label: 'Site', key: 'siteName' },
+                  { label: 'Step', key: 'currentStep' },
+                  { label: 'Status', key: 'status' },
+                  { label: 'Time', key: 'checkInTime' },
+                ] as { label: string; key: SortKey }[]
+              ).map(({ label, key }) => (
+                <th
+                  key={key}
+                  onClick={() => handleSort(key)}
+                  className="text-left py-3 px-4 text-sm font-medium text-gray-500 cursor-pointer select-none"
+                >
+                  <span className="inline-flex items-center gap-1 hover:text-gray-700 transition-colors">
+                    {label}
+                    <SortIcon col={key} />
+                  </span>
+                </th>
+              ))}
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {visits.map((visit) => (
+            {sorted.map((visit) => (
               <tr key={visit._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                 <td className="py-3 px-4 text-sm font-medium text-gray-900">{visit.technicianName}</td>
                 <td className="py-3 px-4 text-sm text-gray-600">{visit.siteName}</td>
