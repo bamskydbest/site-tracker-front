@@ -1,9 +1,12 @@
 import { Filter } from 'lucide-react';
 import Button from './Button.js';
+import { DEPARTMENTS } from '../../types/index.js';
 
 interface FilterPanelProps {
   status: string;
   onStatusChange: (status: string) => void;
+  department: string;
+  onDepartmentChange: (department: string) => void;
   dateFrom: string;
   dateTo: string;
   onDateFromChange: (date: string) => void;
@@ -12,7 +15,9 @@ interface FilterPanelProps {
 }
 
 export default function FilterPanel({
-  status, onStatusChange, dateFrom, dateTo, onDateFromChange, onDateToChange, onReset,
+  status, onStatusChange,
+  department, onDepartmentChange,
+  dateFrom, dateTo, onDateFromChange, onDateToChange, onReset,
 }: FilterPanelProps) {
   return (
     <div className="flex flex-wrap items-end gap-3 p-4 bg-gray-50 rounded-lg">
@@ -32,6 +37,19 @@ export default function FilterPanel({
           <option value="awaiting-approval">Awaiting Approval</option>
           <option value="completed">Completed</option>
           <option value="declined">Declined</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">Department</label>
+        <select
+          value={department}
+          onChange={(e) => onDepartmentChange(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          <option value="">All Departments</option>
+          {DEPARTMENTS.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
         </select>
       </div>
       <div>

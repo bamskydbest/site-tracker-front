@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Clock, User, FileText, Radio, Wifi, Network } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, FileText, TreePine, Zap, Server, Users, User2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/ui/Card.js';
 import Badge from '../components/ui/Badge.js';
@@ -13,83 +13,55 @@ import CommentList from '../components/admin/CommentList.js';
 import StepTracker from '../components/technician/StepTracker.js';
 import { getVisitById } from '../services/visitService.js';
 import { useSocketContext } from '../context/SocketContext.js';
-import type { Visit, Comment, InstallationType, Photo } from '../types/index.js';
+import type { Visit, Comment, Photo } from '../types/index.js';
 
-interface InstallationMeta {
-  label: string;
-  arrivalType: InstallationType;
-  depType: string;
-  icon: ReactNode;
-  badgeColor: string;
-}
-
-const INSTALLATION_META: Record<InstallationType, InstallationMeta> = {
-  'radio-installation': {
-    label: 'Radio Installation',
-    arrivalType: 'radio-installation',
-    depType: 'radio-installation-dep',
-    icon: <Radio className="w-3.5 h-3.5" />,
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-  },
-  'poe-installation': {
-    label: 'POE Installation',
-    arrivalType: 'poe-installation',
-    depType: 'poe-installation-dep',
-    icon: <Network className="w-3.5 h-3.5" />,
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-  },
-  'poe-uplink': {
-    label: 'POE Uplink',
-    arrivalType: 'poe-uplink',
-    depType: 'poe-uplink-dep',
-    icon: <Wifi className="w-3.5 h-3.5" />,
-    badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
-  },
-};
+const NEW_SECTIONS = [
+  { key: 'outdoor', label: 'Outdoor', icon: <TreePine className="w-4 h-4" /> },
+  { key: 'power',   label: 'Power',   icon: <Zap className="w-4 h-4" /> },
+  { key: 'rack',    label: 'Rack',    icon: <Server className="w-4 h-4" /> },
+] as const;
 
 function EmptyPhotoState({ title }: { title: string }) {
   return (
     <div className="text-center py-6">
-      <h4 className="text-sm font-medium text-gray-700 mb-1">{title}</h4>
-      <p className="text-sm text-gray-400">No photos uploaded yet</p>
+      <p className="text-sm text-gray-400">{title} — no photos yet</p>
     </div>
   );
 }
 
-function InstallationBadge({ meta }: { meta: InstallationMeta }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${meta.badgeColor}`}
-    >
-      {meta.icon}
-      {meta.label}
-    </span>
-  );
-}
-
-function PhotoSection({
+function SectionCard({
+  label,
+  icon,
   photos,
-  title,
-  subtitle,
-  badge,
 }: {
+  label: string;
+  icon: ReactNode;
   photos: Photo[];
-  title?: string;
-  subtitle?: string;
-  badge?: ReactNode;
 }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
-        {badge}
-        {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
+        <span className="text-gray-500">{icon}</span>
+        <span className="text-sm font-semibold text-gray-700">{label}</span>
+        {photos.length > 0 && (
+          <span className="ml-auto text-xs text-gray-400">{photos.length} photo{photos.length !== 1 ? 's' : ''}</span>
+        )}
       </div>
       {photos.length > 0 ? (
-        <PhotoGrid photos={photos} title={title} />
+        <PhotoGrid photos={photos} />
       ) : (
-        <EmptyPhotoState title={title ?? 'Photos'} />
+        <EmptyPhotoState title={label} />
       )}
     </Card>
+  );
+}
+
+function ApprovedByBadge({ name }: { name: string }) {
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
+      <User2 className="w-3.5 h-3.5 flex-shrink-0" />
+      Approved by <span className="font-semibold">{name}</span>
+    </div>
   );
 }
 
@@ -141,8 +113,14 @@ export default function AdminVisitDetail() {
   if (loading) return <Spinner size="lg" className="py-20" />;
   if (!visit) return null;
 
-  const installationTypes = visit.installationTypes ?? [];
+  // Detect new-style visit (Outdoor/Power/Rack sections)
+  const isNewVisit = visit.arrivalPhotos.some((p) =>
+    ['outdoor-arrival', 'power-arrival', 'rack-arrival'].includes(p.type)
+  );
+
   const installationPhotos = visit.installationPhotos ?? [];
+  const arrivalApprovedBy = visit.steps.arrivalPhotos.approvedBy;
+  const departureApprovedBy = visit.steps.departurePhotos.approvedBy;
 
   return (
     <div className="space-y-6">
@@ -178,6 +156,13 @@ export default function AdminVisitDetail() {
               <span className="text-sm text-gray-500">Site</span>
               <span className="ml-auto font-medium">{visit.siteName}</span>
             </div>
+            {visit.department && (
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-500">Department</span>
+                <span className="ml-auto font-medium">{visit.department}</span>
+              </div>
+            )}
             <div className="flex items-start gap-2">
               <FileText className="w-4 h-4 text-gray-400 mt-0.5" />
               <span className="text-sm text-gray-500">Reason</span>
@@ -207,26 +192,11 @@ export default function AdminVisitDetail() {
                 </span>
               </div>
             )}
-
-            {/* Work Scope badges */}
-            {installationTypes.length > 0 && (
-              <div className="pt-2 border-t border-gray-100">
-                <p className="text-sm text-gray-500 mb-2">Work Scope</p>
-                <div className="flex flex-wrap gap-2">
-                  {installationTypes.map((type) => {
-                    const meta = INSTALLATION_META[type];
-                    if (!meta) return null;
-                    return (
-                      <span
-                        key={type}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${meta.badgeColor}`}
-                      >
-                        {meta.icon}
-                        {meta.label}
-                      </span>
-                    );
-                  })}
-                </div>
+            {/* Approval info */}
+            {(arrivalApprovedBy || departureApprovedBy) && (
+              <div className="pt-2 border-t border-gray-100 space-y-2">
+                {arrivalApprovedBy && <ApprovedByBadge name={`Arrival — ${arrivalApprovedBy}`} />}
+                {departureApprovedBy && <ApprovedByBadge name={`Departure — ${departureApprovedBy}`} />}
               </div>
             )}
           </div>
@@ -241,72 +211,83 @@ export default function AdminVisitDetail() {
         </Card>
       </div>
 
-      {/* ─── Photos: LEFT = all arrival | RIGHT = all departure ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* ── LEFT: Arrival column ── */}
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-            Arrival
-          </h2>
-
-          {/* Site arrival photos */}
-          <Card className="p-4">
-            {visit.arrivalPhotos.length > 0 ? (
-              <PhotoGrid photos={visit.arrivalPhotos} title="Arrival Photos" />
-            ) : (
-              <EmptyPhotoState title="Arrival Photos" />
-            )}
-          </Card>
-
-          {/* Installation arrival photos — one card per type */}
-          {installationTypes.map((type) => {
-            const meta = INSTALLATION_META[type];
-            if (!meta) return null;
-            const photos = installationPhotos.filter((p) => p.type === meta.arrivalType);
-            return (
-              <PhotoSection
-                key={type}
-                photos={photos}
-                title={meta.label}
-                subtitle="Arrival"
-                badge={<InstallationBadge meta={meta} />}
+      {/* ─── Photos ─── */}
+      {isNewVisit ? (
+        /* New layout: Outdoor / Power / Rack per column */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Arrival column */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Arrival</h2>
+              {arrivalApprovedBy && <ApprovedByBadge name={arrivalApprovedBy} />}
+            </div>
+            {NEW_SECTIONS.map(({ key, label, icon }) => (
+              <SectionCard
+                key={`${key}-arrival`}
+                label={label}
+                icon={icon}
+                photos={visit.arrivalPhotos.filter((p) => p.type === `${key}-arrival`)}
               />
-            );
-          })}
-        </div>
+            ))}
+          </div>
 
-        {/* ── RIGHT: Departure column ── */}
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-            Departure
-          </h2>
-
-          {/* Site departure photos */}
-          <Card className="p-4">
-            {visit.departurePhotos.length > 0 ? (
-              <PhotoGrid photos={visit.departurePhotos} title="Departure Photos" />
-            ) : (
-              <EmptyPhotoState title="Departure Photos" />
-            )}
-          </Card>
-
-          {/* Installation departure photos — one card per type */}
-          {installationTypes.map((type) => {
-            const meta = INSTALLATION_META[type];
-            if (!meta) return null;
-            const photos = installationPhotos.filter((p) => p.type === meta.depType);
-            return (
-              <PhotoSection
-                key={type}
-                photos={photos}
-                title={meta.label}
-                subtitle="Departure"
-                badge={<InstallationBadge meta={meta} />}
+          {/* Departure column */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Departure</h2>
+              {departureApprovedBy && <ApprovedByBadge name={departureApprovedBy} />}
+            </div>
+            {NEW_SECTIONS.map(({ key, label, icon }) => (
+              <SectionCard
+                key={`${key}-departure`}
+                label={label}
+                icon={icon}
+                photos={visit.departurePhotos.filter((p) => p.type === `${key}-departure`)}
               />
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Legacy layout */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Arrival</h2>
+            <Card className="p-4">
+              {visit.arrivalPhotos.length > 0 ? (
+                <PhotoGrid photos={visit.arrivalPhotos} title="Arrival Photos" />
+              ) : (
+                <EmptyPhotoState title="Arrival Photos" />
+              )}
+            </Card>
+            {installationPhotos.filter((p) => !p.type.endsWith('-dep')).length > 0 && (
+              <Card className="p-4">
+                <PhotoGrid
+                  photos={installationPhotos.filter((p) => !p.type.endsWith('-dep'))}
+                  title="Installation Photos"
+                />
+              </Card>
+            )}
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Departure</h2>
+            <Card className="p-4">
+              {visit.departurePhotos.length > 0 ? (
+                <PhotoGrid photos={visit.departurePhotos} title="Departure Photos" />
+              ) : (
+                <EmptyPhotoState title="Departure Photos" />
+              )}
+            </Card>
+            {installationPhotos.filter((p) => p.type.endsWith('-dep')).length > 0 && (
+              <Card className="p-4">
+                <PhotoGrid
+                  photos={installationPhotos.filter((p) => p.type.endsWith('-dep'))}
+                  title="Installation Photos (Departure)"
+                />
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import DashboardStats from '../components/admin/DashboardStats.js';
 import VisitTable from '../components/admin/VisitTable.js';
+import PendingApprovals from '../components/admin/PendingApprovals.js';
 import ReportExport from '../components/admin/ReportExport.js';
 import SearchBar from '../components/ui/SearchBar.js';
 import FilterPanel from '../components/ui/FilterPanel.js';
@@ -9,10 +10,12 @@ import Card from '../components/ui/Card.js';
 import { getVisits } from '../services/visitService.js';
 import { useDebounce } from '../hooks/useDebounce.js';
 import { useSocketContext } from '../context/SocketContext.js';
+import { useAuth } from '../context/AuthContext.js';
 import type { Visit, DashboardStats as Stats } from '../types/index.js';
 import api from '../services/api.js';
 
 export default function AdminDashboard() {
+  const { admin } = useAuth();
   const [visits, setVisits] = useState<Visit[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [page, setPage] = useState(1);
@@ -20,6 +23,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [department, setDepartment] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const debouncedSearch = useDebounce(search, 300);
@@ -29,7 +33,7 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const [visitsRes, statsRes] = await Promise.all([
-        getVisits({ page, search: debouncedSearch, status, dateFrom, dateTo }),
+        getVisits({ page, search: debouncedSearch, status, department, dateFrom, dateTo }),
         api.get('/reports/stats'),
       ]);
       setVisits(visitsRes.visits);
@@ -40,7 +44,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, status, dateFrom, dateTo]);
+  }, [page, debouncedSearch, status, department, dateFrom, dateTo]);
 
   useEffect(() => {
     fetchData();
@@ -65,6 +69,7 @@ export default function AdminDashboard() {
   const resetFilters = () => {
     setSearch('');
     setStatus('');
+    setDepartment('');
     setDateFrom('');
     setDateTo('');
     setPage(1);
@@ -76,6 +81,8 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <ReportExport status={status} dateFrom={dateFrom} dateTo={dateTo} />
       </div>
+
+      {admin?.role === 'superadmin' && <PendingApprovals />}
 
       <DashboardStats stats={stats} loading={loading} />
 
@@ -89,6 +96,8 @@ export default function AdminDashboard() {
           <FilterPanel
             status={status}
             onStatusChange={setStatus}
+            department={department}
+            onDepartmentChange={setDepartment}
             dateFrom={dateFrom}
             dateTo={dateTo}
             onDateFromChange={setDateFrom}

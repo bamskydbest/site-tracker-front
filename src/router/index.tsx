@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage.js';
 import TechnicianFlow from '../pages/TechnicianFlow.js';
 import AdminLogin from '../pages/AdminLogin.js';
+import Register from '../pages/Register.js';
 import AdminDashboard from '../pages/AdminDashboard.js';
 import AdminVisitDetail from '../pages/AdminVisitDetail.js';
 import TechnicianLayout from '../components/layout/TechnicianLayout.js';
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <LandingPage />,
+  },
+  {
+    path: '/register',
+    element: <Register />,
   },
   {
     path: '/technician',

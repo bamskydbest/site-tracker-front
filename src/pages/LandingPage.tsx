@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Shield, Wrench } from 'lucide-react';
+import { Shield, Wrench, UserPlus } from 'lucide-react';
 import Button from '../components/ui/Button.js';
 
 export default function LandingPage() {
@@ -15,7 +15,7 @@ export default function LandingPage() {
         <p className="text-lg text-gray-300 mb-12">
           K-NET field operations portal. Log site visits, capture installation photos, and keep your team in sync — all in real-time.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
           <Button
             variant="accent"
             size="lg"
@@ -33,6 +33,15 @@ export default function LandingPage() {
           >
             <Wrench className="w-5 h-5" />
             Technician
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => navigate('/register')}
+            className="min-w-[200px] !border-white/60 !text-white/80 hover:!bg-white/10 hover:!text-white hover:!border-white"
+          >
+            <UserPlus className="w-5 h-5" />
+            Register
           </Button>
         </div>
       </div>

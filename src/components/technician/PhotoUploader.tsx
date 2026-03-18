@@ -6,7 +6,7 @@ import Button from '../ui/Button.js';
 import toast from 'react-hot-toast';
 
 interface PhotoUploaderProps {
-  onUpload: (files: File[]) => Promise<void>;
+  onUpload: (files: File[], caption: string) => Promise<void>;
   uploading: boolean;
   label: ReactNode;
 }
@@ -20,6 +20,7 @@ const COMPRESSION_OPTIONS = {
 export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [caption, setCaption] = useState('');
   const [compressing, setCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -39,10 +40,8 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       const compressed = await Promise.all(
         fileArray.map((f) => imageCompression(f, COMPRESSION_OPTIONS))
       );
-      const updatedFiles = [...files, ...compressed];
-      setFiles(updatedFiles);
-      const newPreviews = compressed.map((f) => URL.createObjectURL(f));
-      setPreviews([...previews, ...newPreviews]);
+      setFiles([...files, ...compressed]);
+      setPreviews([...previews, ...compressed.map((f) => URL.createObjectURL(f))]);
     } catch {
       toast.error('Failed to process photos, please try again');
     } finally {
@@ -61,7 +60,7 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       toast.error('Minimum 3 photos required');
       return;
     }
-    await onUpload(files);
+    await onUpload(files, caption.trim());
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -71,7 +70,7 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">{label}</h3>
+      <h3 className="text-base font-semibold text-gray-900">{label}</h3>
 
       <div
         onDragOver={(e) => e.preventDefault()}
@@ -89,23 +88,9 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
             Camera
           </Button>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => addFiles(e.target.files)}
-          className="hidden"
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={(e) => addFiles(e.target.files)}
-          className="hidden"
-        />
-        <p className="text-xs text-gray-400 mt-2">3-10 photos required</p>
+        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={(e) => addFiles(e.target.files)} className="hidden" />
+        <p className="text-xs text-gray-400 mt-2">3–10 photos required</p>
       </div>
 
       {previews.length > 0 && (
@@ -123,6 +108,20 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
           ))}
         </div>
       )}
+
+      {/* Caption for entire section */}
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">
+          Section Caption <span className="text-gray-400 font-normal">(optional — e.g. "POE cable entry point")</span>
+        </label>
+        <input
+          type="text"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="Add a descriptive title for these photos..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
 
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">

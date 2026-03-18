@@ -4,11 +4,13 @@ import type { Photo } from '../types/index.js';
 export const uploadPhotos = async (
   visitId: string,
   files: File[],
-  photoType?: string
+  photoType?: string,
+  caption?: string
 ): Promise<Photo[]> => {
   const formData = new FormData();
   files.forEach((file) => formData.append('photos', file));
   if (photoType) formData.append('photoType', photoType);
+  if (caption) formData.append('caption', caption);
 
   const { data } = await api.post(`/photos/${visitId}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

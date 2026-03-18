@@ -1,15 +1,40 @@
+export const DEPARTMENTS = [
+  'RF & Fibre (Transmission)',
+  'Satellite & Teleport',
+  'IP Core & Network',
+  'Broadcast Services (DTT / DTH)',
+  '4G',
+  'Jubilee Project',
+  'Power & Solar',
+  'Systems',
+  'NOC',
+] as const;
+
+export type Department = typeof DEPARTMENTS[number];
+
 export interface Admin {
   _id: string;
   name: string;
   email: string;
   role: 'admin' | 'superadmin';
+  department?: string;
+  status?: 'pending' | 'active';
   token: string;
+}
+
+export interface PendingAdmin {
+  _id: string;
+  name: string;
+  email: string;
+  department?: string;
+  createdAt: string;
 }
 
 export interface StepStatus {
   status: 'pending' | 'in-progress' | 'awaiting-approval' | 'approved' | 'declined' | 'completed';
   completedAt?: string;
   declineReason?: string;
+  approvedBy?: string;
 }
 
 export interface GpsLocation {
@@ -18,20 +43,30 @@ export interface GpsLocation {
   address?: string;
 }
 
-export type InstallationType = 'radio-installation' | 'poe-installation' | 'poe-uplink';
+export type PhotoType =
+  | 'outdoor-arrival'
+  | 'power-arrival'
+  | 'rack-arrival'
+  | 'outdoor-departure'
+  | 'power-departure'
+  | 'rack-departure'
+  // Legacy
+  | 'arrival'
+  | 'departure'
+  | 'radio-installation'
+  | 'poe-installation'
+  | 'poe-uplink'
+  | 'radio-installation-dep'
+  | 'poe-installation-dep'
+  | 'poe-uplink-dep';
 
 export interface Photo {
   _id: string;
   visit: string;
   url: string;
   publicId: string;
-  type:
-    | 'arrival'
-    | 'departure'
-    | InstallationType
-    | 'radio-installation-dep'
-    | 'poe-installation-dep'
-    | 'poe-uplink-dep';
+  type: PhotoType;
+  caption?: string;
   uploadedAt: string;
 }
 
@@ -49,6 +84,7 @@ export interface Visit {
   technicianName: string;
   siteName: string;
   reason: string;
+  department?: string;
   gpsLocation: GpsLocation;
   currentStep: 'checkIn' | 'arrivalPhotos' | 'departurePhotos' | 'complete';
   steps: {
@@ -57,10 +93,11 @@ export interface Visit {
     departurePhotos: StepStatus;
     complete: StepStatus;
   };
-  installationTypes?: InstallationType[];
+  // Legacy fields — optional so old visits still type-check
+  installationTypes?: string[];
+  installationPhotos?: Photo[];
   arrivalPhotos: Photo[];
   departurePhotos: Photo[];
-  installationPhotos?: Photo[];
   comments: Comment[];
   checkInTime: string;
   checkOutTime?: string;

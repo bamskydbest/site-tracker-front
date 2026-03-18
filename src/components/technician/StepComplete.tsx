@@ -1,103 +1,46 @@
-import { CheckCircle, MapPin, Clock, Radio, Network, Wifi } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, TreePine, Zap, Server, User2 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import Card from '../ui/Card.js';
 import PhotoGrid from '../ui/PhotoGrid.js';
 import Button from '../ui/Button.js';
-import type { Visit, InstallationType, Photo } from '../../types/index.js';
-import type { ReactNode } from 'react';
+import type { Visit, Photo } from '../../types/index.js';
 
 interface StepCompleteProps {
   visit: Visit;
   onNewVisit: () => void;
 }
 
-interface PhotoSection {
-  key: string;
-  title: string;
-  icon: ReactNode;
-  photos: Photo[];
+const NEW_SECTIONS = [
+  { key: 'outdoor', label: 'Outdoor', icon: <TreePine className="w-4 h-4" /> },
+  { key: 'power',   label: 'Power',   icon: <Zap className="w-4 h-4" /> },
+  { key: 'rack',    label: 'Rack',    icon: <Server className="w-4 h-4" /> },
+] as const;
+
+function SectionPhotos({ label, icon, photos }: { label: string; icon: ReactNode; photos: Photo[] }) {
+  if (photos.length === 0) return null;
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
+        {icon}
+        {label}
+        <span className="ml-auto text-xs font-normal text-gray-400">
+          {photos.length} photo{photos.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+      <PhotoGrid photos={photos} />
+    </div>
+  );
 }
 
-// Map installation types to display info and photo type keys
-const INSTALLATION_DISPLAY: Record<
-  InstallationType,
-  { label: string; icon: ReactNode; arrivalType: InstallationType; depType: string }
-> = {
-  'radio-installation': {
-    label: 'Radio Installation',
-    icon: <Radio className="w-4 h-4" />,
-    arrivalType: 'radio-installation',
-    depType: 'radio-installation-dep',
-  },
-  'poe-installation': {
-    label: 'POE Installation',
-    icon: <Network className="w-4 h-4" />,
-    arrivalType: 'poe-installation',
-    depType: 'poe-installation-dep',
-  },
-  'poe-uplink': {
-    label: 'POE Uplink',
-    icon: <Wifi className="w-4 h-4" />,
-    arrivalType: 'poe-uplink',
-    depType: 'poe-uplink-dep',
-  },
-};
-
 export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
-  const installationTypes = visit.installationTypes ?? [];
+  // Detect new-style visit (sections: outdoor/power/rack)
+  const isNewVisit = visit.arrivalPhotos.some((p) =>
+    ['outdoor-arrival', 'power-arrival', 'rack-arrival'].includes(p.type)
+  );
+
   const installationPhotos = visit.installationPhotos ?? [];
-
-  // Build ordered list of photo sections to display
-  const photoSections: PhotoSection[] = [];
-
-  // 1. Arrival site photos
-  if (visit.arrivalPhotos.length > 0) {
-    photoSections.push({
-      key: 'arrival',
-      title: 'Arrival Photos',
-      icon: <MapPin className="w-4 h-4" />,
-      photos: visit.arrivalPhotos,
-    });
-  }
-
-  // 2. Arrival installation photos (one section per selected type)
-  installationTypes.forEach((type) => {
-    const display = INSTALLATION_DISPLAY[type];
-    if (!display) return;
-    const photos = installationPhotos.filter((p) => p.type === display.arrivalType);
-    if (photos.length > 0) {
-      photoSections.push({
-        key: `${type}-arrival`,
-        title: `${display.label} — Arrival`,
-        icon: display.icon,
-        photos,
-      });
-    }
-  });
-
-  // 3. Departure site photos
-  if (visit.departurePhotos.length > 0) {
-    photoSections.push({
-      key: 'departure',
-      title: 'Departure Photos',
-      icon: <MapPin className="w-4 h-4" />,
-      photos: visit.departurePhotos,
-    });
-  }
-
-  // 4. Departure installation photos
-  installationTypes.forEach((type) => {
-    const display = INSTALLATION_DISPLAY[type];
-    if (!display) return;
-    const photos = installationPhotos.filter((p) => p.type === display.depType);
-    if (photos.length > 0) {
-      photoSections.push({
-        key: `${type}-departure`,
-        title: `${display.label} — Departure`,
-        icon: display.icon,
-        photos,
-      });
-    }
-  });
+  const arrivalApprovedBy = visit.steps.arrivalPhotos.approvedBy;
+  const departureApprovedBy = visit.steps.departurePhotos.approvedBy;
 
   return (
     <Card className="p-6">
@@ -120,6 +63,13 @@ export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
           </div>
         </div>
 
+        {visit.department && (
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-xs text-gray-500">Department</div>
+            <div className="font-medium">{visit.department}</div>
+          </div>
+        )}
+
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="text-xs text-gray-500">Reason for Visit</div>
           <div className="font-medium">{visit.reason}</div>
@@ -130,8 +80,7 @@ export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
           <div>
             <div className="text-xs text-gray-500">Location</div>
             <div className="text-sm">
-              {visit.gpsLocation.address ||
-                `${visit.gpsLocation.lat}, ${visit.gpsLocation.lng}`}
+              {visit.gpsLocation.address || `${visit.gpsLocation.lat}, ${visit.gpsLocation.lng}`}
             </div>
           </div>
         </div>
@@ -155,21 +104,76 @@ export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
           )}
         </div>
 
-        {/* All photo sections in order */}
-        {photoSections.length > 0 && (
-          <div className="space-y-4 pt-2 border-t border-gray-100">
-            {photoSections.map((section) => (
-              <div key={section.key}>
-                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
-                  {section.icon}
-                  {section.title}
-                  <span className="ml-auto text-xs font-normal text-gray-400">
-                    {section.photos.length} photo{section.photos.length !== 1 ? 's' : ''}
-                  </span>
+        {/* Approved-by row */}
+        {(arrivalApprovedBy || departureApprovedBy) && (
+          <div className="grid grid-cols-2 gap-4">
+            {arrivalApprovedBy && (
+              <div className="bg-green-50 rounded-lg p-3 flex items-start gap-2">
+                <User2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-xs text-green-600">Arrival approved by</div>
+                  <div className="text-sm font-medium text-green-800">{arrivalApprovedBy}</div>
                 </div>
-                <PhotoGrid photos={section.photos} />
               </div>
+            )}
+            {departureApprovedBy && (
+              <div className="bg-green-50 rounded-lg p-3 flex items-start gap-2">
+                <User2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-xs text-green-600">Departure approved by</div>
+                  <div className="text-sm font-medium text-green-800">{departureApprovedBy}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Photos */}
+        {isNewVisit ? (
+          <div className="space-y-4 pt-2 border-t border-gray-100">
+            <p className="text-sm font-semibold text-gray-700">Arrival Photos</p>
+            {NEW_SECTIONS.map(({ key, label, icon }) => (
+              <SectionPhotos
+                key={`${key}-arrival`}
+                label={label}
+                icon={icon}
+                photos={visit.arrivalPhotos.filter((p) => p.type === `${key}-arrival`)}
+              />
             ))}
+            <p className="text-sm font-semibold text-gray-700 pt-2 border-t border-gray-100">Departure Photos</p>
+            {NEW_SECTIONS.map(({ key, label, icon }) => (
+              <SectionPhotos
+                key={`${key}-departure`}
+                label={label}
+                icon={icon}
+                photos={visit.departurePhotos.filter((p) => p.type === `${key}-departure`)}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Legacy photo layout */
+          <div className="space-y-4 pt-2 border-t border-gray-100">
+            {visit.arrivalPhotos.length > 0 && (
+              <SectionPhotos
+                label="Arrival Photos"
+                icon={<MapPin className="w-4 h-4" />}
+                photos={visit.arrivalPhotos}
+              />
+            )}
+            {installationPhotos.length > 0 && (
+              <SectionPhotos
+                label="Installation Photos"
+                icon={<MapPin className="w-4 h-4" />}
+                photos={installationPhotos}
+              />
+            )}
+            {visit.departurePhotos.length > 0 && (
+              <SectionPhotos
+                label="Departure Photos"
+                icon={<MapPin className="w-4 h-4" />}
+                photos={visit.departurePhotos}
+              />
+            )}
           </div>
         )}
 

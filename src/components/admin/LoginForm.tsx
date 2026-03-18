@@ -26,8 +26,11 @@ export default function LoginForm() {
       setAdmin(admin);
       toast.success('Welcome back!');
       navigate('/admin/dashboard');
-    } catch {
-      toast.error('Invalid credentials');
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        'Invalid credentials';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

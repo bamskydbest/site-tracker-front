@@ -7,6 +7,7 @@ interface VisitFilters {
   status?: string;
   step?: string;
   search?: string;
+  department?: string;
   dateFrom?: string;
   dateTo?: string;
 }
@@ -15,9 +16,9 @@ export const createVisit = async (data: {
   technicianName: string;
   siteName: string;
   reason: string;
+  department: string;
   gpsLocation: GpsLocation;
   idempotencyKey?: string;
-  installationTypes?: string[];
 }): Promise<Visit> => {
   const { data: visit } = await api.post('/visits', data);
   return visit;

@@ -5,7 +5,7 @@ import Badge from '../ui/Badge.js';
 import EmptyState from '../ui/EmptyState.js';
 import type { Visit } from '../../types/index.js';
 
-type SortKey = 'technicianName' | 'siteName' | 'currentStep' | 'status' | 'checkInTime';
+type SortKey = 'technicianName' | 'siteName' | 'department' | 'currentStep' | 'status' | 'checkInTime';
 type SortDir = 'asc' | 'desc';
 
 interface VisitTableProps {
@@ -68,6 +68,7 @@ export default function VisitTable({ visits, loading }: VisitTableProps) {
                 [
                   { label: 'Technician', key: 'technicianName' },
                   { label: 'Site', key: 'siteName' },
+                  { label: 'Department', key: 'department' },
                   { label: 'Step', key: 'currentStep' },
                   { label: 'Status', key: 'status' },
                   { label: 'Time', key: 'checkInTime' },
@@ -92,6 +93,7 @@ export default function VisitTable({ visits, loading }: VisitTableProps) {
               <tr key={visit._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                 <td className="py-3 px-4 text-sm font-medium text-gray-900">{visit.technicianName}</td>
                 <td className="py-3 px-4 text-sm text-gray-600">{visit.siteName}</td>
+                <td className="py-3 px-4 text-sm text-gray-500">{visit.department || '—'}</td>
                 <td className="py-3 px-4"><Badge status={visit.currentStep} /></td>
                 <td className="py-3 px-4"><Badge status={visit.status} /></td>
                 <td className="py-3 px-4 text-sm text-gray-500">{new Date(visit.checkInTime).toLocaleString()}</td>
@@ -122,6 +124,9 @@ export default function VisitTable({ visits, loading }: VisitTableProps) {
               <Badge status={visit.status} />
             </div>
             <div className="text-sm text-gray-600 mb-1">{visit.siteName}</div>
+            {visit.department && (
+              <div className="text-xs text-gray-400 mb-1">{visit.department}</div>
+            )}
             <div className="flex items-center justify-between">
               <Badge status={visit.currentStep} />
               <span className="text-xs text-gray-400">{new Date(visit.checkInTime).toLocaleString()}</span>
