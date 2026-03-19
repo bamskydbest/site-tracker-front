@@ -1,5 +1,6 @@
 import { Filter } from 'lucide-react';
 import Button from './Button.js';
+import Select from './Select.js';
 import { DEPARTMENTS } from '../../types/index.js';
 
 interface FilterPanelProps {
@@ -20,59 +21,64 @@ export default function FilterPanel({
   dateFrom, dateTo, onDateFromChange, onDateToChange, onReset,
 }: FilterPanelProps) {
   return (
-    <div className="flex flex-wrap items-end gap-3 p-4 bg-gray-50 rounded-lg">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+    <div className="flex flex-wrap items-end gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+      <div className="flex items-center gap-2 text-sm font-medium text-gray-600 self-end pb-2.5">
         <Filter className="w-4 h-4" />
         Filters
       </div>
-      <div>
-        <label className="block text-xs text-gray-500 mb-1">Status</label>
-        <select
+
+      <div className="min-w-[140px]">
+        <Select
+          label="Status"
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         >
-          <option value="">All</option>
+          <option value="">All Statuses</option>
           <option value="active">Active</option>
           <option value="awaiting-approval">Awaiting Approval</option>
           <option value="completed">Completed</option>
           <option value="declined">Declined</option>
-        </select>
+        </Select>
       </div>
-      <div>
-        <label className="block text-xs text-gray-500 mb-1">Department</label>
-        <select
+
+      <div className="min-w-[180px]">
+        <Select
+          label="Department"
           value={department}
           onChange={(e) => onDepartmentChange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
         >
           <option value="">All Departments</option>
           {DEPARTMENTS.map((d) => (
             <option key={d} value={d}>{d}</option>
           ))}
-        </select>
+        </Select>
       </div>
+
       <div>
-        <label className="block text-xs text-gray-500 mb-1">From</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
         <input
           type="date"
           value={dateFrom}
           onChange={(e) => onDateFromChange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent hover:border-gray-400 transition-all"
         />
       </div>
+
       <div>
-        <label className="block text-xs text-gray-500 mb-1">To</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
         <input
           type="date"
           value={dateTo}
           onChange={(e) => onDateToChange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent hover:border-gray-400 transition-all"
         />
       </div>
-      <Button variant="ghost" size="sm" onClick={onReset}>
-        Reset
-      </Button>
+
+      <div className="self-end">
+        <Button variant="ghost" size="sm" onClick={onReset}>
+          Reset
+        </Button>
+      </div>
     </div>
   );
 }

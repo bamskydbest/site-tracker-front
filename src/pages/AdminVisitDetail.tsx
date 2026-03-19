@@ -38,6 +38,8 @@ function SectionCard({
   icon: ReactNode;
   photos: Photo[];
 }) {
+  const caption = photos[0]?.caption;
+
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -47,6 +49,11 @@ function SectionCard({
           <span className="ml-auto text-xs text-gray-400">{photos.length} photo{photos.length !== 1 ? 's' : ''}</span>
         )}
       </div>
+      {caption && (
+        <p className="text-xs text-gray-500 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 mb-3 italic">
+          "{caption}"
+        </p>
+      )}
       {photos.length > 0 ? (
         <PhotoGrid photos={photos} />
       ) : (

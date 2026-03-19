@@ -119,17 +119,17 @@ export default function VisitTable({ visits, loading }: VisitTableProps) {
             onClick={() => navigate(`/admin/visits/${visit._id}`)}
             className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-sm transition-shadow"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium text-gray-900">{visit.technicianName}</span>
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <span className="font-medium text-gray-900 truncate min-w-0">{visit.technicianName}</span>
               <Badge status={visit.status} />
             </div>
-            <div className="text-sm text-gray-600 mb-1">{visit.siteName}</div>
+            <div className="text-sm text-gray-600 mb-1 truncate">{visit.siteName}</div>
             {visit.department && (
-              <div className="text-xs text-gray-400 mb-1">{visit.department}</div>
+              <div className="text-xs text-gray-400 mb-1 truncate">{visit.department}</div>
             )}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <Badge status={visit.currentStep} />
-              <span className="text-xs text-gray-400">{new Date(visit.checkInTime).toLocaleString()}</span>
+              <span className="text-xs text-gray-400 shrink-0">{new Date(visit.checkInTime).toLocaleDateString()}</span>
             </div>
           </div>
         ))}

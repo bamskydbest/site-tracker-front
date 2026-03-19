@@ -20,7 +20,7 @@ export default function LandingPage() {
             variant="accent"
             size="lg"
             onClick={() => navigate('/admin/login')}
-            className="min-w-[200px]"
+            className="w-full sm:w-auto sm:min-w-[200px]"
           >
             <Shield className="w-5 h-5" />
             Admin Portal
@@ -29,7 +29,7 @@ export default function LandingPage() {
             variant="outline"
             size="lg"
             onClick={() => navigate('/technician')}
-            className="min-w-[200px] !border-white !text-white hover:!bg-white hover:!text-primary"
+            className="w-full sm:w-auto sm:min-w-[200px] !border-white !text-white hover:!bg-white hover:!text-primary"
           >
             <Wrench className="w-5 h-5" />
             Technician
@@ -38,7 +38,7 @@ export default function LandingPage() {
             variant="outline"
             size="lg"
             onClick={() => navigate('/register')}
-            className="min-w-[200px] !border-white/60 !text-white/80 hover:!bg-white/10 hover:!text-white hover:!border-white"
+            className="w-full sm:w-auto sm:min-w-[200px] !border-white/60 !text-white/80 hover:!bg-white/10 hover:!text-white hover:!border-white"
           >
             <UserPlus className="w-5 h-5" />
             Register

@@ -37,7 +37,7 @@ export default function Header({ showLogout = false }: HeaderProps) {
                 <span className="hidden sm:inline">Team</span>
               </Link>
             )}
-            <span className="text-sm text-gray-300">Welcome, {displayName}</span>
+            <span className="text-sm text-gray-300 hidden sm:inline truncate max-w-[160px]">Welcome, {displayName}</span>
             <button
               onClick={handleLogout}
               className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"

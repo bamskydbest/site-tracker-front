@@ -30,6 +30,7 @@ export interface PendingAdmin {
   status: 'pending' | 'active';
   role: 'admin' | 'superadmin';
   createdAt: string;
+  lastLoginAt?: string;
 }
 
 export interface StepStatus {

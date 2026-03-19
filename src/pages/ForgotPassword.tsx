@@ -32,7 +32,7 @@ export default function ForgotPassword() {
   if (sent) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-8 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
           <p className="text-gray-500 mb-6">
@@ -49,7 +49,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-8">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate('/admin/login')}

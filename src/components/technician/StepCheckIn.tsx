@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import Button from '../ui/Button.js';
 import Input from '../ui/Input.js';
+import Select from '../ui/Select.js';
 import GpsIndicator from './GpsIndicator.js';
 import Card from '../ui/Card.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
@@ -86,19 +87,16 @@ export default function StepCheckIn({ onComplete }: StepCheckInProps) {
           onChange={(e) => setReason(e.target.value)}
         />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-          <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            <option value="">Select department</option>
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Department"
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+        >
+          <option value="">Select department</option>
+          {DEPARTMENTS.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </Select>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">GPS Location</label>

@@ -1,11 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Users, Mail, Building2, Calendar } from 'lucide-react';
+import { ArrowLeft, Trash2, Users, Mail, Building2, Calendar, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/ui/Card.js';
 import Spinner from '../components/ui/Spinner.js';
 import { getAllAdmins, deleteAdminById } from '../services/authService.js';
 import type { PendingAdmin } from '../types/index.js';
+
+function formatLastLogin(date?: string) {
+  if (!date) return <span className="text-gray-300 italic">Never</span>;
+  const d = new Date(date);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return <span className="text-green-600 font-medium">Just now</span>;
+  if (diffMins < 60) return <span className="text-green-600 font-medium">{diffMins}m ago</span>;
+  if (diffHours < 24) return <span className="text-blue-600 font-medium">{diffHours}h ago</span>;
+  if (diffDays < 7) return <span className="text-gray-600">{diffDays}d ago</span>;
+  return <span className="text-gray-500">{d.toLocaleDateString()}</span>;
+}
 
 export default function AdminTeam() {
   const navigate = useNavigate();
@@ -78,6 +94,7 @@ export default function AdminTeam() {
                   <th className="text-left py-3 px-4 text-xs font-medium text-gray-500">Department</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-gray-500">Status</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-gray-500">Registered</th>
+                  <th className="text-left py-3 px-4 text-xs font-medium text-gray-500">Last Login</th>
                   <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">Actions</th>
                 </tr>
               </thead>
@@ -98,6 +115,9 @@ export default function AdminTeam() {
                     </td>
                     <td className="py-3 px-4 text-gray-400 text-xs">
                       {new Date(a.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 text-xs">
+                      {formatLastLogin(a.lastLoginAt)}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <button
@@ -139,9 +159,9 @@ export default function AdminTeam() {
                   </button>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                    {a.email}
+                    <span className="truncate">{a.email}</span>
                   </div>
                   {a.department && (
                     <div className="flex items-center gap-2">
@@ -151,7 +171,11 @@ export default function AdminTeam() {
                   )}
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                    {new Date(a.createdAt).toLocaleDateString()}
+                    Registered {new Date(a.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                    Last login: {formatLastLogin(a.lastLoginAt)}
                   </div>
                 </div>
               </Card>

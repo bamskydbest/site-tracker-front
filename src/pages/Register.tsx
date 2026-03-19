@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../components/ui/Button.js';
 import Input from '../components/ui/Input.js';
+import Select from '../components/ui/Select.js';
 import { registerAdmin } from '../services/authService.js';
 import { DEPARTMENTS } from '../types/index.js';
 
@@ -64,7 +65,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-8">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate('/')}
@@ -95,19 +96,16 @@ export default function Register() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-            >
-              <option value="">Select your department</option>
-              {DEPARTMENTS.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Department"
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+          >
+            <option value="">Select your department</option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </Select>
           <Input
             label="Password"
             type="password"
