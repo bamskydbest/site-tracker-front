@@ -4,7 +4,6 @@ import { ArrowLeft, Trash2, Users, Mail, Building2, Calendar } from 'lucide-reac
 import toast from 'react-hot-toast';
 import Card from '../components/ui/Card.js';
 import Spinner from '../components/ui/Spinner.js';
-import Badge from '../components/ui/Badge.js';
 import { getAllAdmins, deleteAdminById } from '../services/authService.js';
 import type { PendingAdmin } from '../types/index.js';
 
