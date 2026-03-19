@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../ui/Button.js';
 import Input from '../ui/Input.js';
@@ -65,6 +65,14 @@ export default function LoginForm() {
           <Button type="submit" loading={loading} className="w-full" size="lg">
             Sign In
           </Button>
+          <div className="text-center">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-accent hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>

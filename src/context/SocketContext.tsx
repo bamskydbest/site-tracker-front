@@ -17,10 +17,19 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const s = connectSocket();
     setSocket(s);
 
-    s.on('connect', () => setConnected(true));
-    s.on('disconnect', () => setConnected(false));
+    // Critical: sync state immediately — the connect event may already have
+    // fired before this listener was attached (e.g. on hot-reload)
+    if (s.connected) setConnected(true);
+
+    const onConnect = () => setConnected(true);
+    const onDisconnect = () => setConnected(false);
+
+    s.on('connect', onConnect);
+    s.on('disconnect', onDisconnect);
 
     return () => {
+      s.off('connect', onConnect);
+      s.off('disconnect', onDisconnect);
       disconnectSocket();
     };
   }, []);

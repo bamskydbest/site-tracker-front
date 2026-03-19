@@ -27,6 +27,8 @@ export interface PendingAdmin {
   name: string;
   email: string;
   department?: string;
+  status: 'pending' | 'active';
+  role: 'admin' | 'superadmin';
   createdAt: string;
 }
 

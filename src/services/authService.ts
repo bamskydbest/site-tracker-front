@@ -35,3 +35,23 @@ export const rejectAdminById = async (id: string): Promise<{ message: string }> 
   const { data } = await api.delete(`/auth/reject/${id}`);
   return data;
 };
+
+export const getAllAdmins = async (): Promise<PendingAdmin[]> => {
+  const { data } = await api.get('/auth/admins');
+  return data;
+};
+
+export const deleteAdminById = async (id: string): Promise<{ message: string }> => {
+  const { data } = await api.delete(`/auth/admins/${id}`);
+  return data;
+};
+
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  const { data } = await api.post('/auth/forgot-password', { email });
+  return data;
+};
+
+export const resetPassword = async (token: string, password: string): Promise<{ message: string }> => {
+  const { data } = await api.post('/auth/reset-password', { token, password });
+  return data;
+};

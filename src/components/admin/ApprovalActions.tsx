@@ -3,7 +3,7 @@ import { CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../ui/Button.js';
 import Modal from '../ui/Modal.js';
-import { approveStep, declineStep } from '../../services/visitService.js';
+import { approveStep, declineStep, getVisitById } from '../../services/visitService.js';
 import type { Visit } from '../../types/index.js';
 
 interface ApprovalActionsProps {
@@ -22,9 +22,10 @@ export default function ApprovalActions({ visit, onUpdate }: ApprovalActionsProp
   const handleApprove = async () => {
     setLoading(true);
     try {
-      const updated = await approveStep(visit._id);
+      await approveStep(visit._id);
+      const populated = await getVisitById(visit._id);
       toast.success('Step approved!');
-      onUpdate(updated);
+      onUpdate(populated);
     } catch {
       toast.error('Failed to approve');
     } finally {
@@ -39,10 +40,11 @@ export default function ApprovalActions({ visit, onUpdate }: ApprovalActionsProp
     }
     setLoading(true);
     try {
-      const updated = await declineStep(visit._id, reason);
+      await declineStep(visit._id, reason);
+      const populated = await getVisitById(visit._id);
       toast.success('Step declined');
       setDeclining(false);
-      onUpdate(updated);
+      onUpdate(populated);
     } catch {
       toast.error('Failed to decline');
     } finally {

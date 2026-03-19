@@ -60,6 +60,10 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       toast.error('Minimum 3 photos required');
       return;
     }
+    if (!caption.trim()) {
+      toast.error('Please add a title/caption before uploading');
+      return;
+    }
     await onUpload(files, caption.trim());
   };
 
@@ -112,7 +116,8 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
       {/* Caption for entire section */}
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">
-          Section Caption <span className="text-gray-400 font-normal">(optional — e.g. "POE cable entry point")</span>
+          Section Title <span className="text-red-500">*</span>
+          <span className="text-gray-400 font-normal ml-1">(e.g. "POE cable entry point")</span>
         </label>
         <input
           type="text"
@@ -127,7 +132,7 @@ export default function PhotoUploader({ onUpload, uploading, label }: PhotoUploa
         <span className="text-sm text-gray-500">
           {compressing ? 'Processing photos...' : `${files.length}/10 photos selected`}
         </span>
-        <Button onClick={handleUpload} loading={uploading || compressing} disabled={files.length < 3 || compressing}>
+        <Button onClick={handleUpload} loading={uploading || compressing} disabled={files.length < 3 || compressing || !caption.trim()}>
           Upload Photos
         </Button>
       </div>
