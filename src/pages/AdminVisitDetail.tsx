@@ -225,7 +225,7 @@ export default function AdminVisitDetail() {
           {/* Arrival column */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Arrival</h2>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">STATE OF SITE UPON ARRIVAL (PHOTOS)</h2>
               {arrivalApprovedBy && <ApprovedByBadge name={arrivalApprovedBy} />}
             </div>
             {NEW_SECTIONS.map(({ key, label, icon }) => (
@@ -241,7 +241,7 @@ export default function AdminVisitDetail() {
           {/* Departure column */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Departure</h2>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">JOB COMPLETION (PHOTOS)</h2>
               {departureApprovedBy && <ApprovedByBadge name={departureApprovedBy} />}
             </div>
             {NEW_SECTIONS.map(({ key, label, icon }) => (
