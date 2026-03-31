@@ -1,5 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Shield, Wrench, UserPlus, ArrowRight, MapPin, Cloud, CheckCircle2 } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+type SystemStatus = 'checking' | 'online' | 'offline';
 
 const portals = [
   {
@@ -39,6 +44,17 @@ const features = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [status, setStatus] = useState<SystemStatus>('checking');
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    fetch(API_URL, { signal: controller.signal })
+      .then(() => setStatus('online'))
+      .catch(() => setStatus('offline'))
+      .finally(() => clearTimeout(timeout));
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#001a3e] relative overflow-hidden flex flex-col">
@@ -72,15 +88,24 @@ export default function LandingPage() {
           </div>
 
           {/* Right: system status */}
-          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3.5 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-emerald-700 text-xs font-semibold tracking-wide hidden xs:block">
-              System Online
-            </span>
-            <span className="text-emerald-700 text-xs font-semibold tracking-wide xs:hidden">
-              Online
-            </span>
-          </div>
+          {status === 'checking' && (
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3.5 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+              <span className="text-gray-500 text-xs font-semibold tracking-wide">Checking…</span>
+            </div>
+          )}
+          {status === 'online' && (
+            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3.5 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-emerald-700 text-xs font-semibold tracking-wide">System Online</span>
+            </div>
+          )}
+          {status === 'offline' && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-3.5 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span className="text-red-700 text-xs font-semibold tracking-wide">System Offline</span>
+            </div>
+          )}
 
         </div>
       </header>
