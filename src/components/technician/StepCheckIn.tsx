@@ -13,14 +13,22 @@ import type { Visit } from '../../types/index.js';
 const CHECKIN_KEY = 'sitetracker_checkin_key';
 
 interface StepCheckInProps {
+  visitorType: 'internal' | 'external';
   onComplete: (visit: Visit) => void;
 }
 
-export default function StepCheckIn({ onComplete }: StepCheckInProps) {
+export default function StepCheckIn({ visitorType, onComplete }: StepCheckInProps) {
+  const isExternal = visitorType === 'external';
+
+  // Common fields
   const [technicianName, setTechnicianName] = useState('');
   const [siteName, setSiteName] = useState('');
   const [reason, setReason] = useState('');
   const [department, setDepartment] = useState('');
+  // External-only fields
+  const [companyName, setCompanyName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+
   const [loading, setLoading] = useState(false);
   const geo = useGeolocation();
   const idempotencyKey = useRef<string>('');
@@ -36,8 +44,23 @@ export default function StepCheckIn({ onComplete }: StepCheckInProps) {
 
   const handleSubmit = async () => {
     if (!technicianName.trim() || !siteName.trim() || !reason.trim() || !department) {
-      toast.error('Please fill in all fields');
+      toast.error('Please fill in all required fields');
       return;
+    }
+    if (isExternal) {
+      if (!companyName.trim()) {
+        toast.error('Please enter your organisation / company name');
+        return;
+      }
+      if (!contactEmail.trim()) {
+        toast.error('Please enter a contact email for notifications');
+        return;
+      }
+      // Basic email format check
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail.trim())) {
+        toast.error('Please enter a valid email address');
+        return;
+      }
     }
     if (!geo.location) {
       toast.error('GPS location is required');
@@ -53,12 +76,14 @@ export default function StepCheckIn({ onComplete }: StepCheckInProps) {
         department,
         gpsLocation: geo.location,
         idempotencyKey: idempotencyKey.current,
+        visitorType,
+        ...(isExternal ? { companyName: companyName.trim(), contactEmail: contactEmail.trim() } : {}),
       });
       localStorage.removeItem(CHECKIN_KEY);
-      toast.success('Check-in successful!');
+      toast.success(isExternal ? 'Request submitted! Awaiting approval.' : 'Check-in successful!');
       onComplete(visit);
     } catch {
-      toast.error('Failed to check in. Please try again.');
+      toast.error('Submission failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -66,14 +91,40 @@ export default function StepCheckIn({ onComplete }: StepCheckInProps) {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Site Check-in</h2>
-      <div className="space-y-4">
+      <h2 className="text-xl font-bold text-gray-900 mb-1">
+        {isExternal ? 'External Visitor Request' : 'Site Check-in'}
+      </h2>
+      {isExternal && (
+        <p className="text-sm text-gray-500 mb-4">
+          Fill in the details below. Your request will be reviewed by a superadmin and you will be notified by email.
+        </p>
+      )}
+      <div className="space-y-4 mt-4">
         <Input
-          label="Technician Name"
+          label={isExternal ? 'Visitor Name' : 'Technician Name'}
           placeholder="Enter your full name"
           value={technicianName}
           onChange={(e) => setTechnicianName(e.target.value)}
         />
+
+        {isExternal && (
+          <>
+            <Input
+              label="Organisation / Company"
+              placeholder="Enter your organisation or company name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+            <Input
+              label="Contact Email"
+              type="email"
+              placeholder="Enter email to receive approval notification"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+            />
+          </>
+        )}
+
         <Input
           label="Site Name"
           placeholder="Enter site name"
@@ -110,7 +161,7 @@ export default function StepCheckIn({ onComplete }: StepCheckInProps) {
           className="w-full"
           size="lg"
         >
-          Confirm Arrival
+          {isExternal ? 'Submit Request' : 'Confirm Arrival'}
         </Button>
       </div>
     </Card>

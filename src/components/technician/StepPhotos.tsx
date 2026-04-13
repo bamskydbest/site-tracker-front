@@ -49,7 +49,6 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const allSectionsUploaded = SECTIONS.every(({ key }) => sectionUploaded[key]);
   const uploadedCount = SECTIONS.filter(({ key }) => sectionUploaded[key]).length;
 
   useEffect(() => { setComments(visit.comments || []); }, [visit.comments]);
@@ -148,7 +147,7 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-500 px-1">
-        Upload photos for all 3 sections below, then submit for admin approval.
+        Upload photos for the sections below, then submit for admin approval. Photo sections are optional — but a section title is required before uploading.
       </p>
 
       {SECTIONS.map((section, idx) => {
@@ -192,18 +191,18 @@ export default function StepPhotos({ visit, type, onApproved, onVisitUpdate }: S
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-gray-800">
-              {allSectionsUploaded
-                ? 'All 3 sections complete — ready to submit for approval'
-                : `${uploadedCount} of 3 sections uploaded`}
+              {uploadedCount === 0
+                ? 'No sections uploaded yet'
+                : `${uploadedCount} of 3 section${uploadedCount !== 1 ? 's' : ''} uploaded`}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
-              Outdoor, Power, and Rack photos are all required
+              Sections are optional — submit when ready
             </p>
           </div>
           <Button
             onClick={handleSubmitForApproval}
             loading={submitting}
-            disabled={!allSectionsUploaded || submitting}
+            disabled={submitting}
             variant="accent"
             className="sm:flex-shrink-0"
           >

@@ -19,6 +19,9 @@ export const createVisit = async (data: {
   department: string;
   gpsLocation: GpsLocation;
   idempotencyKey?: string;
+  visitorType?: 'internal' | 'external';
+  companyName?: string;
+  contactEmail?: string;
 }): Promise<Visit> => {
   const { data: visit } = await api.post('/visits', data);
   return visit;

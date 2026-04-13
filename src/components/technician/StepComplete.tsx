@@ -75,15 +75,25 @@ export default function StepComplete({ visit, onNewVisit }: StepCompleteProps) {
           <div className="font-medium">{visit.reason}</div>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-3 flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+        <a
+          href={`https://www.google.com/maps?q=${visit.gpsLocation.lat},${visit.gpsLocation.lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gray-50 rounded-lg p-3 flex items-start gap-2 hover:bg-blue-50 hover:border hover:border-blue-200 border border-transparent transition-colors group"
+        >
+          <MapPin className="w-4 h-4 text-gray-400 mt-0.5 group-hover:text-blue-500 flex-shrink-0" />
           <div>
-            <div className="text-xs text-gray-500">Location</div>
-            <div className="text-sm">
-              {visit.gpsLocation.address || `${visit.gpsLocation.lat}, ${visit.gpsLocation.lng}`}
+            <div className="text-xs text-gray-500 group-hover:text-blue-500">Location — tap to open map</div>
+            <div className="text-sm font-medium">
+              {visit.gpsLocation.address || `${visit.gpsLocation.lat.toFixed(6)}, ${visit.gpsLocation.lng.toFixed(6)}`}
             </div>
+            {visit.gpsLocation.address && (
+              <div className="text-xs text-gray-400 mt-0.5">
+                {visit.gpsLocation.lat.toFixed(6)}, {visit.gpsLocation.lng.toFixed(6)}
+              </div>
+            )}
           </div>
-        </div>
+        </a>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gray-50 rounded-lg p-3 flex items-start gap-2">

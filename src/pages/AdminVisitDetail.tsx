@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Clock, User, FileText, TreePine, Zap, Server, Users, User2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, FileText, TreePine, Zap, Server, Users, User2, Building2, Mail, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/ui/Card.js';
 import Badge from '../components/ui/Badge.js';
@@ -176,13 +176,41 @@ export default function AdminVisitDetail() {
               <span className="ml-auto text-sm text-right">{visit.reason}</span>
             </div>
             <div className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-              <span className="text-sm text-gray-500">Location</span>
-              <span className="ml-auto text-sm text-right">
-                {visit.gpsLocation.address ||
-                  `${visit.gpsLocation.lat}, ${visit.gpsLocation.lng}`}
-              </span>
+              <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <span className="text-sm text-gray-500 flex-shrink-0">Location</span>
+              <a
+                href={`https://www.google.com/maps?q=${visit.gpsLocation.lat},${visit.gpsLocation.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto text-sm text-right text-blue-600 hover:underline flex items-start gap-1"
+              >
+                <span>
+                  <span className="block">{visit.gpsLocation.address || `${visit.gpsLocation.lat.toFixed(6)}, ${visit.gpsLocation.lng.toFixed(6)}`}</span>
+                  {visit.gpsLocation.address && (
+                    <span className="block text-xs text-gray-400">{visit.gpsLocation.lat.toFixed(6)}, {visit.gpsLocation.lng.toFixed(6)}</span>
+                  )}
+                </span>
+                <ExternalLink className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              </a>
             </div>
+            {visit.visitorType === 'external' && (
+              <>
+                {visit.companyName && (
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-500">Organisation</span>
+                    <span className="ml-auto font-medium">{visit.companyName}</span>
+                  </div>
+                )}
+                {visit.contactEmail && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-500">Contact Email</span>
+                    <span className="ml-auto text-sm">{visit.contactEmail}</span>
+                  </div>
+                )}
+              </>
+            )}
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" />
               <span className="text-sm text-gray-500">Check-in</span>

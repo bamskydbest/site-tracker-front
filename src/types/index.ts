@@ -88,6 +88,9 @@ export interface Visit {
   siteName: string;
   reason: string;
   department?: string;
+  visitorType?: 'internal' | 'external';
+  companyName?: string;
+  contactEmail?: string;
   gpsLocation: GpsLocation;
   currentStep: 'checkIn' | 'arrivalPhotos' | 'departurePhotos' | 'complete';
   steps: {
